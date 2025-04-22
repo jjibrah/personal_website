@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -26,7 +26,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 
 // Health check endpoint
-app.get('/health', (req, res) => {
+app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({ 
     status: 'ok',
     environment: process.env.NODE_ENV,
@@ -51,7 +51,7 @@ mongoose.connect(MONGODB_URI)
   });
 
 // Error handling middleware
-app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   console.error('Error:', err.stack);
   res.status(500).json({ 
     message: process.env.NODE_ENV === 'production' 
