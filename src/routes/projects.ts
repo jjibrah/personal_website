@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 
@@ -18,14 +18,14 @@ const projectSchema = new mongoose.Schema({
 const Project = mongoose.model('Project', projectSchema);
 
 // Middleware to verify JWT token
-const verifyToken = (req: express.Request, res: express.Response, next: express.NextFunction) => {
+const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   const token = req.headers.authorization?.split(' ')[1];
 
   if (!token) {
     return res.status(401).json({ message: 'No token provided' });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key', (err) => {
+  jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key', (err: jwt.VerifyErrors | null) => {
     if (err) {
       return res.status(401).json({ message: 'Invalid token' });
     }
@@ -34,7 +34,7 @@ const verifyToken = (req: express.Request, res: express.Response, next: express.
 };
 
 // Get all projects
-router.get('/', async (req, res) => {
+router.get('/', async (req: Request, res: Response) => {
   try {
     const projects = await Project.find().sort({ createdAt: -1 });
     res.json(projects);
@@ -45,7 +45,7 @@ router.get('/', async (req, res) => {
 });
 
 // Get single project
-router.get('/:id', async (req, res) => {
+router.get('/:id', async (req: Request, res: Response) => {
   try {
     const project = await Project.findById(req.params.id);
     if (!project) {
@@ -59,7 +59,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create project (protected)
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', verifyToken, async (req: Request, res: Response) => {
   try {
     const project = new Project(req.body);
     await project.save();
@@ -71,7 +71,7 @@ router.post('/', verifyToken, async (req, res) => {
 });
 
 // Update project (protected)
-router.put('/:id', verifyToken, async (req, res) => {
+router.put('/:id', verifyToken, async (req: Request, res: Response) => {
   try {
     const project = await Project.findByIdAndUpdate(
       req.params.id,
@@ -89,7 +89,7 @@ router.put('/:id', verifyToken, async (req, res) => {
 });
 
 // Delete project (protected)
-router.delete('/:id', verifyToken, async (req, res) => {
+router.delete('/:id', verifyToken, async (req: Request, res: Response) => {
   try {
     const project = await Project.findByIdAndDelete(req.params.id);
     if (!project) {

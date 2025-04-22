@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
@@ -11,7 +11,7 @@ const adminUser = {
 };
 
 // Login route
-router.post('/login', async (req, res) => {
+router.post('/login', async (req: Request, res: Response) => {
   try {
     const { username, password } = req.body;
 
@@ -41,7 +41,7 @@ router.post('/login', async (req, res) => {
 });
 
 // Verify token route
-router.post('/verify', (req, res) => {
+router.post('/verify', (req: Request, res: Response) => {
   try {
     const token = req.headers.authorization?.split(' ')[1];
 
@@ -49,7 +49,7 @@ router.post('/verify', (req, res) => {
       return res.status(401).json({ message: 'No token provided' });
     }
 
-    jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key', (err, decoded) => {
+    jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key', (err: jwt.VerifyErrors | null, decoded: any) => {
       if (err) {
         return res.status(401).json({ message: 'Invalid token' });
       }
