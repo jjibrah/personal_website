@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: AbdifatahIbrahim
+    name: portfolio-backend
     env: node
     buildCommand: npm install && npm run build
     startCommand: npm start
