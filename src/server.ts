@@ -1,25 +1,21 @@
-import express, { Request, Response, NextFunction } from 'express';
+import express, { Express, Request, Response } from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
-import dotenv from 'dotenv';
-import { json } from 'body-parser';
+import bodyParser from 'body-parser';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
 
 // Routes
 import authRoutes from './routes/auth';
 import projectRoutes from './routes/projects';
 
-dotenv.config();
-
-const app = express();
+const app: Express = express();
+const port = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://your-frontend-domain.com'] // Replace with your frontend domain
-    : 'http://localhost:3000',
-  credentials: true
-}));
-app.use(json());
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -35,34 +31,17 @@ app.get('/health', (req: Request, res: Response) => {
 });
 
 // MongoDB Connection
-const MONGODB_URI = process.env.MONGODB_URI;
-if (!MONGODB_URI) {
-  console.error('MONGODB_URI is not defined in environment variables');
-  process.exit(1);
-}
-
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/portfolio';
 mongoose.connect(MONGODB_URI)
-  .then(() => {
-    console.log('Connected to MongoDB successfully');
-  })
-  .catch((error) => {
-    console.error('MongoDB connection error:', error);
-    process.exit(1);
-  });
+  .then(() => console.log('Connected to MongoDB'))
+  .catch((err) => console.error('MongoDB connection error:', err));
 
-// Error handling middleware
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
-  console.error('Error:', err.stack);
-  res.status(500).json({ 
-    message: process.env.NODE_ENV === 'production' 
-      ? 'Something went wrong!' 
-      : err.message,
-    timestamp: new Date().toISOString()
-  });
+// Basic route
+app.get('/', (req: Request, res: Response) => {
+  res.json({ message: 'Welcome to Portfolio Backend API' });
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-  console.log(`MongoDB URI: ${MONGODB_URI.substring(0, 20)}...`);
+// Start server
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 }); 
